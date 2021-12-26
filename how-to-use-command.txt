@@ -1,0 +1,6 @@
+run_full_control https://example.com http_raw     send command to client as website
+run_full_control path     send command to client as path
+rfc_logs bool     when you use send command it will show in logs what uuidv4 get command
+connect_clients_logs     logs all client it does connected
+help     logs all command you can you
+exit     exit from node running
