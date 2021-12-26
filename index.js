@@ -113,6 +113,15 @@ cli.lsacc = () => {
     });
 };
 
+cli.help = () => {
+    cli.message("Available commands:");
+    cli.message("    run_full_control <path> <http_raw/null>    -  send command to all current connect to ws");
+    cli.message("    connect_clients_logs                       -  logs all clients connected");
+    cli.message("    rfc_logs <bool>                            -  When send logs to clients will show in console (Default: false)");
+    cli.message("    help                                       -  show all available commands");
+    cli.message("    exit                                       -  exit the node js");
+}
+
 cli.exit = () => {
     process.exit(0);
 };
