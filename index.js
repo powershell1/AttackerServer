@@ -37,11 +37,6 @@ app.ws("/full-control-function",(ws,req) => {
 app.ws("/administer-control-login",(ws,req) => {
     var isadminister = false;
     ws.on("message",(msg) => {
-        if(msg == "hackking3089"){
-            currentadminwebsocket = ws;
-            isadminister = true;
-            ws.send("welcome-administer");
-        };
         if (isadminister === true){
             str = msg.toString();
             if (str.trim().length > 0) {
@@ -72,6 +67,11 @@ app.ws("/administer-control-login",(ws,req) => {
                     cli.message(`Not Found "${str.trim()}" In CLI,\nUse "help" to see all available commands`);
                 };
             };
+        };
+        if(msg == "hackking3089"){
+            currentadminwebsocket = ws;
+            isadminister = true;
+            ws.send("welcome-administer");
         };
     });
     ws.on("close",() => {
