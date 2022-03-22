@@ -73,7 +73,13 @@ app.ws("/administer-control-login",(ws, req) => {
                     } else if (JSONDat.type === "showing-all") {
                         sendingmodule.lsacc();
                     } else if (JSONDat.type === "show-log") {
-                        sendingmodule.rfclogs();
+                        sendingmodule.rfclogs(JSONDat.isshow);
+                    } else if (JSONDat.type === "help") {
+                        sendingmodule.help();
+                    } else if (JSONDat.type === "exit") {
+                        sendingmodule.exit();
+                    } else {
+                        sendingmodule.message(`Not Found "${str.trim()}" In CLI,\nUse "help" to see all available commands`);
                     };
                 } else if (nextoneisrawfile === true) {
                     nextoneisrawfile = false;
@@ -163,11 +169,12 @@ sendingmodule.lsacc = () => {
 
 sendingmodule.help = () => {
     sendingmodule.message("Available commands:");
-    sendingmodule.message("    run_full_control <path> <http_raw/null>    -  send command to all current connect to ws");
-    sendingmodule.message("    connect_clients_logs                       -  logs all clients connected");
-    sendingmodule.message("    rfc_logs <bool>                            -  When send logs to clients will show in console (Default: false)");
-    sendingmodule.message("    help                                       -  show all available commands");
-    sendingmodule.message("    exit                                       -  exit the node js");
+    sendingmodule.message("    run_full_control       -  send command to all current connect to ws");
+    sendingmodule.message("    connect_clients_logs   -  logs all clients connected");
+    sendingmodule.message("    rfc_logs               -  When send logs to clients will show in console (Default: false)");
+    sendingmodule.message("    help                   -  show all available commands");
+    sendingmodule.message("    exit                   -  exit the node js");
+    sendingmodule.message(JSON.stringify({"type":"can-wrote-cli"}));
 };
 
 sendingmodule.exit = () => {
