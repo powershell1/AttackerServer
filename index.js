@@ -45,90 +45,97 @@ app.ws("/full-control-function",(ws, req) => {
 });
 
 app.ws("/administer-control-login",(ws, req) => {
-    var isadminister = false;
-    var nextoneisrawfile = false;
-    ws.on("message",(msg) => {
-        if (isadminister === true){
-            str = msg.toString();
-            if (str.trim().length > 0) {
-                if (IsJsonString(str)) {
-                    var JSONDat = IsJsonString(str);
-                    if (JSONDat.type === "create-new-request-session") {
-                        if (JSONDat.uuid === null) {
-                            ws.send('error-incorrect-json');
+    if (currentadminwebsocket === null) {
+        var isadminister = false;
+        var nextoneisrawfile = false;
+        ws.on("open", () => {
+            ws.send("ready-to-login");
+        });
+        ws.on("message", (msg) => {
+            if (isadminister === true){
+                str = msg.toString();
+                if (str.trim().length > 0) {
+                    if (IsJsonString(str)) {
+                        var JSONDat = IsJsonString(str);
+                        if (JSONDat.type === "create-new-request-session") {
+                            if (JSONDat.uuid === null) {
+                                ws.send('error-incorrect-json');
+                            } else {
+                                nextoneisrawfile = true;
+                            };
+                        } else if (JSONDat.type === "sending-url") {
+                            if (JSONDat.url === null) {
+                                ws.send('error-incorrect-json');
+                            } else {
+                                axios.get(JSONDat.url).then((res) => {
+                                    sendingmodule.rfc(res.data);
+                                }).catch((err) => {
+                                    sendingmodule.message(chalk.red("Error Log ,\n" + err));
+                                    sendingmodule.message(JSON.stringify({"type":"can-wrote-cli"}));
+                                });
+                            };
+                        } else if (JSONDat.type === "showing-all") {
+                            sendingmodule.lsacc();
+                        } else if (JSONDat.type === "show-log") {
+                            sendingmodule.rfclogs(JSONDat.isshow);
+                        } else if (JSONDat.type === "help") {
+                            sendingmodule.help();
+                        } else if (JSONDat.type === "exit") {
+                            sendingmodule.exit();
                         } else {
-                            nextoneisrawfile = true;
+                            sendingmodule.message(`Not Found "${str.trim()}" In CLI,\nUse "help" to see all available commands`);
                         };
-                    } else if (JSONDat.type === "sending-url") {
-                        if (JSONDat.url === null) {
-                            ws.send('error-incorrect-json');
-                        } else {
-                            axios.get(JSONDat.url).then((res) => {
+                    } else if (nextoneisrawfile === true) {
+                        nextoneisrawfile = false;
+                        sendingmodule.rfc(str);
+                    };
+                    if (str.trim().toLowerCase().split(" ")[0] == "server-cut-off") {
+                    };
+                    /*
+                    if (str.trim().toLowerCase().split(" ")[0] == "exit") {
+                        sendingmodule.exit();
+                    } else if (str.trim().toLowerCase().split(" ")[0] == "help") {
+                        sendingmodule.help();
+                    } else if (str.trim().toLowerCase().split(" ")[0] == "run_full_control") {
+                        if (str.trim().toLowerCase().split(" ")[2] === undefined || str.trim().toLowerCase().split(" ")[2] !== "http_raw") {
+                            if (str.trim().split(" ")[1] !== "" && str.trim().split(" ")[1] !== undefined && fs.existsSync(__dirname + "/" + str.trim().split(" ")[1])) {
+                                sendingmodule.rfc(fs.readFileSync(path.join(__dirname + "/" + str.trim().split(" ")[1]),{encoding:'utf8'}));
+                            }else{
+                                sendingmodule.message("Incorrect path");
+                            };
+                        }else{
+                            axios.get(str.trim().split(" ")[1]).then((res) => {
                                 sendingmodule.rfc(res.data);
                             }).catch((err) => {
-                                sendingmodule.message(chalk.red("Error Log ,\n" + err));
-                                sendingmodule.message(JSON.stringify({"type":"can-wrote-cli"}));
+                                sendingmodule.message("Error Log,");
+                                sendingmodule.message(err);
                             });
                         };
-                    } else if (JSONDat.type === "showing-all") {
+                    } else if (str.trim().toLowerCase().split(" ")[0] == "rfc_logs") {
+                        sendingmodule.rfclogs(str.trim().split(" ")[1]);
+                    } else if (str.trim().toLowerCase().split(" ")[0] == "connect_clients_logs") {
                         sendingmodule.lsacc();
-                    } else if (JSONDat.type === "show-log") {
-                        sendingmodule.rfclogs(JSONDat.isshow);
-                    } else if (JSONDat.type === "help") {
-                        sendingmodule.help();
-                    } else if (JSONDat.type === "exit") {
-                        sendingmodule.exit();
                     } else {
                         sendingmodule.message(`Not Found "${str.trim()}" In CLI,\nUse "help" to see all available commands`);
                     };
-                } else if (nextoneisrawfile === true) {
-                    nextoneisrawfile = false;
-                    sendingmodule.rfc(str);
+                    */
                 };
-                if (str.trim().toLowerCase().split(" ")[0] == "server-cut-off") {
-                };
-                /*
-                if (str.trim().toLowerCase().split(" ")[0] == "exit") {
-                    sendingmodule.exit();
-                } else if (str.trim().toLowerCase().split(" ")[0] == "help") {
-                    sendingmodule.help();
-                } else if (str.trim().toLowerCase().split(" ")[0] == "run_full_control") {
-                    if (str.trim().toLowerCase().split(" ")[2] === undefined || str.trim().toLowerCase().split(" ")[2] !== "http_raw") {
-                        if (str.trim().split(" ")[1] !== "" && str.trim().split(" ")[1] !== undefined && fs.existsSync(__dirname + "/" + str.trim().split(" ")[1])) {
-                            sendingmodule.rfc(fs.readFileSync(path.join(__dirname + "/" + str.trim().split(" ")[1]),{encoding:'utf8'}));
-                        }else{
-                            sendingmodule.message("Incorrect path");
-                        };
-                    }else{
-                        axios.get(str.trim().split(" ")[1]).then((res) => {
-                            sendingmodule.rfc(res.data);
-                        }).catch((err) => {
-                            sendingmodule.message("Error Log,");
-                            sendingmodule.message(err);
-                        });
-                    };
-                } else if (str.trim().toLowerCase().split(" ")[0] == "rfc_logs") {
-                    sendingmodule.rfclogs(str.trim().split(" ")[1]);
-                } else if (str.trim().toLowerCase().split(" ")[0] == "connect_clients_logs") {
-                    sendingmodule.lsacc();
-                } else {
-                    sendingmodule.message(`Not Found "${str.trim()}" In CLI,\nUse "help" to see all available commands`);
-                };
-                */
-            };
-        } else {
-            if(msg === "hackking3089"){
-                currentadminwebsocket = ws;
-                isadminister = true;
-                ws.send("welcome-administer");
             } else {
-                ws.send("wrong-password");
+                if(msg === "hackking3089"){
+                    currentadminwebsocket = ws;
+                    isadminister = true;
+                    ws.send("welcome-administer");
+                } else {
+                    ws.send("wrong-password");
+                };
             };
-        };
-    });
-    ws.on("close",() => {
-        currentadminwebsocket = null;
-    });
+        });
+        ws.on("close", () => {
+            currentadminwebsocket = null;
+        });
+    } else {
+        ws.send("already-have-login");
+    };
 });
 
 sendingmodule.message = (msg) => {
