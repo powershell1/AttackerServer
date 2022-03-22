@@ -48,9 +48,7 @@ app.ws("/administer-control-login",(ws, req) => {
     if (currentadminwebsocket === null) {
         var isadminister = false;
         var nextoneisrawfile = false;
-        ws.on("open", () => {
-            ws.send("ready-to-login");
-        });
+        ws.send("ready-to-login");
         ws.on("message", (msg) => {
             if (isadminister === true){
                 str = msg.toString();
